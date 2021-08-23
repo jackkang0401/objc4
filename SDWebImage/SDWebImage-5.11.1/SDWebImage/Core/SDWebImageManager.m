@@ -369,13 +369,13 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     
     // Check whether we should download image from network
-    BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);
-    shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);
-    shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);
+    BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);   // 不只取缓存
+    shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);          // 缓存为空 || 强制刷新缓存
+    shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);                          // 此 URL 每次都下载
     if ([imageLoader respondsToSelector:@selector(canRequestImageForURL:options:context:)]) {
-        shouldDownload &= [imageLoader canRequestImageForURL:url options:options context:context];
+        shouldDownload &= [imageLoader canRequestImageForURL:url options:options context:context];  // 验证是否可下载
     } else {
-        shouldDownload &= [imageLoader canRequestImageForURL:url];
+        shouldDownload &= [imageLoader canRequestImageForURL:url];                                  // 验证是否可下载
     }
     if (shouldDownload) {
         if (cachedImage && options & SDWebImageRefreshCached) {
@@ -540,9 +540,9 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
-    BOOL shouldTransformImage = originalImage && transformer;
-    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
-    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));
+    BOOL shouldTransformImage = originalImage && transformer;                                                                       // context 包含 Transformer
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));  // 1.不是动画图片  2.是动画图片，并且需要转换为动画图片
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));      // 1.不是向量图  2.是向量图，并且需要转换为向量图
     // if available, store transformed image to cache
     if (shouldTransformImage) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{

@@ -251,7 +251,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         }
     }
     SD_UNLOCK(_operationsLock);
-    
+    // 监听 operation 收到respone与下载停止通知
     SDWebImageDownloadToken *token = [[SDWebImageDownloadToken alloc] initWithDownloadOperation:operation];
     token.url = url;
     token.request = operation.request;

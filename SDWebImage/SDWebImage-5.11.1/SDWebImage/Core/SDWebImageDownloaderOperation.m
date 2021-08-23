@@ -108,7 +108,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         callbacks = [[self.callbackBlocks valueForKey:key] mutableCopy];
     }
     // We need to remove [NSNull null] because there might not always be a progress block for each callback
-    [callbacks removeObjectIdenticalTo:[NSNull null]];
+    [callbacks removeObjectIdenticalTo:[NSNull null]];      // 删除数组中指定元素，根据对象的地址判断
     return [callbacks copy]; // strip mutability here
 }
 
@@ -118,7 +118,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
     BOOL shouldCancel = NO;
     @synchronized (self) {
         NSMutableArray *tempCallbackBlocks = [self.callbackBlocks mutableCopy];
-        [tempCallbackBlocks removeObjectIdenticalTo:token];
+        [tempCallbackBlocks removeObjectIdenticalTo:token]; // token 为 SDCallbacksDictionary
         if (tempCallbackBlocks.count == 0) {
             shouldCancel = YES;
         }
@@ -157,7 +157,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         if (hasApplication && [self shouldContinueWhenAppEntersBackground]) {
             __weak typeof(self) wself = self;
             UIApplication * app = [UIApplicationClass performSelector:@selector(sharedApplication)];
-            self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{
+            self.backgroundTaskId = [app beginBackgroundTaskWithExpirationHandler:^{    // 申请后台任务
                 [wself cancel];
             }];
         }
@@ -190,7 +190,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
                 cachedResponse = [URLCache cachedResponseForRequest:self.request];
             }
             if (cachedResponse) {
-                self.cachedData = cachedResponse.data;
+                self.cachedData = cachedResponse.data;      // 用于数据加载完成是判断，是否是从 NSURLCache 读取的
             }
         }
         
@@ -216,7 +216,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
             self.dataTask.priority = NSURLSessionTaskPriorityDefault;
             self.coderQueue.qualityOfService = NSQualityOfServiceDefault;
         }
-        [self.dataTask resume];
+        [self.dataTask resume];                             // 开始加载数据
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
@@ -278,7 +278,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         self.dataTask = nil;
         
         if (self.ownedSession) {
-            [self.ownedSession invalidateAndCancel];
+            [self.ownedSession invalidateAndCancel];                // 取消加载数据
             self.ownedSession = nil;
         }
         
@@ -374,7 +374,7 @@ didReceiveResponse:(NSURLResponse *)response
     if (self.expectedSize == 0) {
         // Unknown expectedSize, immediately call progressBlock and return
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-            progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
+            progressBlock(self.receivedSize, self.expectedSize, self.request.URL);      // 进度回调
         }
         return;
     }
@@ -392,7 +392,7 @@ didReceiveResponse:(NSURLResponse *)response
     self.previousProgress = currentProgress;
     
     // Using data decryptor will disable the progressive decoding, since there are no support for progressive decrypt
-    BOOL supportProgressive = (self.options & SDWebImageDownloaderProgressiveLoad) && !self.decryptor;
+    BOOL supportProgressive = (self.options & SDWebImageDownloaderProgressiveLoad) && !self.decryptor;  // 渐进下载展示
     // Progressive decoding Only decode partial image, full image in `URLSession:task:didCompleteWithError:`
     if (supportProgressive && !finished) {
         // Get the image data
@@ -410,7 +410,7 @@ didReceiveResponse:(NSURLResponse *)response
                 UIImage *image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, NO, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                 if (image) {
                     // We do not keep the progressive decoding image even when `finished`=YES. Because they are for view rendering but not take full function from downloader options. And some coders implementation may not keep consistent between progressive decoding and normal decoding.
-                    
+                    // 完成回调，多用于下载过程的渐进展示
                     [self callCompletionBlocksWithImage:image imageData:nil error:nil finished:NO];
                 }
             }];
@@ -418,7 +418,7 @@ didReceiveResponse:(NSURLResponse *)response
     }
     
     for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
-        progressBlock(self.receivedSize, self.expectedSize, self.request.URL);
+        progressBlock(self.receivedSize, self.expectedSize, self.request.URL);          // 进度回调
     }
 }
 
@@ -502,7 +502,7 @@ didReceiveResponse:(NSURLResponse *)response
                             NSString *description = image == nil ? @"Downloaded image decode failed" : @"Downloaded image has 0 pixels";
                             [self callCompletionBlocksWithError:[NSError errorWithDomain:SDWebImageErrorDomain code:SDWebImageErrorBadImageData userInfo:@{NSLocalizedDescriptionKey : description}]];
                         } else {
-                            [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];
+                            [self callCompletionBlocksWithImage:image imageData:imageData error:nil finished:YES];  // 完成回调
                         }
                         [self done];
                     }];

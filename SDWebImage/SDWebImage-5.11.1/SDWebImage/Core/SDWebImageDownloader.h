@@ -32,14 +32,15 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageDownloaderOptions) {
      * By default, request prevent the use of NSURLCache. With this flag, NSURLCache
      * is used with default policies.
      */
-    SDWebImageDownloaderUseNSURLCache = 1 << 2,
+    SDWebImageDownloaderUseNSURLCache = 1 << 2,     // 使用 NSURLCache 默认的缓存策略：NSURLRequestUseProtocolCachePolicy
 
     /**
      * Call completion block with nil image/imageData if the image was read from NSURLCache
      * And the error code is `SDWebImageErrorCacheNotModified`
      * This flag should be combined with `SDWebImageDownloaderUseNSURLCache`.
      */
-    SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,
+    SDWebImageDownloaderIgnoreCachedResponse = 1 << 3,  // 与上面的选项配合使用，如果图像是从 NSURLCache 读取的，回调返回的 image 和 imageData 为 nil
+
     
     /**
      * In iOS 4+, continue the download of the image if the app goes to background. This is achieved by asking the system for
