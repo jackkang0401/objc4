@@ -294,7 +294,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 }
 
 - (void)setFinished:(BOOL)finished {
-    [self willChangeValueForKey:@"isFinished"];
+    [self willChangeValueForKey:@"isFinished"]; // NSOperationQueue 监听该属性的值，用于判断任务是否结束，结束后移除
     _finished = finished;
     [self didChangeValueForKey:@"isFinished"];
 }

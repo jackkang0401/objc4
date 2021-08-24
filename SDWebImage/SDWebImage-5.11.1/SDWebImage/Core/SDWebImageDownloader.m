@@ -251,7 +251,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
         }
     }
     SD_UNLOCK(_operationsLock);
-    // 监听 operation 收到respone与下载停止通知
+    // 监听 operation 收到 respone 与下载停止通知
     SDWebImageDownloadToken *token = [[SDWebImageDownloadToken alloc] initWithDownloadOperation:operation];
     token.url = url;
     token.request = operation.request;
@@ -335,7 +335,7 @@ static void * SDWebImageDownloaderContext = &SDWebImageDownloaderContext;
     } else {
         operationClass = [SDWebImageDownloaderOperation class];
     }
-    NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:self.session options:options context:context];
+    NSOperation<SDWebImageDownloaderOperation> *operation = [[operationClass alloc] initWithRequest:request inSession:self.session options:options context:context];    // 创建 operation
     
     if ([operation respondsToSelector:@selector(setCredential:)]) {
         if (self.config.urlCredential) {

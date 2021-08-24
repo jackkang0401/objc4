@@ -45,6 +45,12 @@
 
 /**
  The download operation class for SDWebImageDownloader.
+ 
+ start：把需要执行的任务放在start方法里，任务加到队列后，队列会管理任务并在线程被调度后，调用start方法，不需要调用父类的方法
+ asynchronous：表示是否并发执行
+ executing：表示任务是否正在执行，需要手动调用 KVO 方法来进行通知，方便其他类监听了任务的该属性
+ finished：表示任务是否结束，需要手动调用 KVO 方法来进行通知，NSOperationQueue 监听该属性的值，用于判断任务是否结束，结束后移除
+ 
  */
 @interface SDWebImageDownloaderOperation : NSOperation <SDWebImageDownloaderOperation>
 

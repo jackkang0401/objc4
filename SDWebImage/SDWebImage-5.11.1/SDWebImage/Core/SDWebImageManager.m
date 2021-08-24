@@ -369,9 +369,9 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     
     // Check whether we should download image from network
-    BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);   // 不只取缓存
-    shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);          // 缓存为空 || 强制刷新缓存
-    shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);                          // 此 URL 每次都下载
+    BOOL shouldDownload = !SD_OPTIONS_CONTAINS(options, SDWebImageFromCacheOnly);                   // 不只取缓存
+    shouldDownload &= (!cachedImage || options & SDWebImageRefreshCached);                          // 缓存为空 || 强制刷新缓存
+    shouldDownload &= (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url]);  // 此 URL 每次都下载
     if ([imageLoader respondsToSelector:@selector(canRequestImageForURL:options:context:)]) {
         shouldDownload &= [imageLoader canRequestImageForURL:url options:options context:context];  // 验证是否可下载
     } else {
@@ -479,10 +479,10 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
-    BOOL shouldTransformImage = downloadedImage && transformer;
-    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));
-    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isVector || (options & SDWebImageTransformVectorImage));
-    BOOL shouldCacheOriginal = downloadedImage && finished;
+    BOOL shouldTransformImage = downloadedImage && transformer;                                                                     // (存在图片 && 存在转换器)
+    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));// (不是动画图片 || 需要在转换成动画图片)
+    shouldTransformImage = shouldTransformImage && (!downloadedImage.sd_isVector || (options & SDWebImageTransformVectorImage));    // (不是向量图 || 需要在转换成向量图)
+    BOOL shouldCacheOriginal = downloadedImage && finished;                                                                         // (存在图片 && 完成)
     
     // if available, store original image to cache
     if (shouldCacheOriginal) {
@@ -494,14 +494,14 @@ static id<SDImageLoader> _defaultImageLoader;
                     NSData *cacheData = [cacheSerializer cacheDataWithImage:downloadedImage originalData:downloadedData imageURL:url];
                     [self storeImage:downloadedImage imageData:cacheData forKey:key imageCache:imageCache cacheType:targetStoreCacheType options:options context:context completion:^{
                         // Continue transform process
-                        [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
+                        [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData finished:finished progress:progressBlock completed:completedBlock];  // 转换图片并存入本地
                     }];
                 }
             });
         } else {
             [self storeImage:downloadedImage imageData:downloadedData forKey:key imageCache:imageCache cacheType:targetStoreCacheType options:options context:context completion:^{
                 // Continue transform process
-                [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData finished:finished progress:progressBlock completed:completedBlock];
+                [self callTransformProcessForOperation:operation url:url options:options context:context originalImage:downloadedImage originalData:downloadedData finished:finished progress:progressBlock completed:completedBlock];          // 转换图片并存入本地
             }];
         }
     } else {
@@ -540,14 +540,14 @@ static id<SDImageLoader> _defaultImageLoader;
     }
     id<SDWebImageCacheSerializer> cacheSerializer = context[SDWebImageContextCacheSerializer];
     
-    BOOL shouldTransformImage = originalImage && transformer;                                                                       // context 包含 Transformer
-    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));  // 1.不是动画图片  2.是动画图片，并且需要转换为动画图片
-    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));      // 1.不是向量图  2.是向量图，并且需要转换为向量图
+    BOOL shouldTransformImage = originalImage && transformer;                                                                       // (存在原图 && 存在转换器)
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isAnimated || (options & SDWebImageTransformAnimatedImage));  // (原图不是动画图片 || 需要在转换成动画图片)
+    shouldTransformImage = shouldTransformImage && (!originalImage.sd_isVector || (options & SDWebImageTransformVectorImage));      // (原图不是向量图 || 需要在转换成向量图)
     // if available, store transformed image to cache
     if (shouldTransformImage) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             @autoreleasepool {
-                UIImage *transformedImage = [transformer transformedImageWithImage:originalImage forKey:key];
+                UIImage *transformedImage = [transformer transformedImageWithImage:originalImage forKey:key];                       // 转换图片
                 if (transformedImage && finished) {
                     BOOL imageWasTransformed = ![transformedImage isEqual:originalImage];
                     NSData *cacheData;
