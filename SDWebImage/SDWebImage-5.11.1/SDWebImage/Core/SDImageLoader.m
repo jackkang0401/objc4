@@ -80,7 +80,7 @@ UIImage * _Nullable SDImageLoaderDecodeImageData(NSData * _Nonnull imageData, NS
             if (image) {
                 // Preload frames if supported
                 if (options & SDWebImagePreloadAllFrames && [image respondsToSelector:@selector(preloadAllFrames)]) {
-                    [((id<SDAnimatedImage>)image) preloadAllFrames];
+                    [((id<SDAnimatedImage>)image) preloadAllFrames];            // 预处理全部 frame
                 }
             } else {
                 // Check image class matching

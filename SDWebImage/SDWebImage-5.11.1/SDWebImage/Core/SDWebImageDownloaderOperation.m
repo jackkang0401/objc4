@@ -493,7 +493,7 @@ didReceiveResponse:(NSURLResponse *)response
                         id<SDProgressiveImageCoder> progressiveCoder = SDImageLoaderGetProgressiveCoder(self);
                         UIImage *image;
                         if (progressiveCoder) {
-                            image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, YES, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
+                            image = SDImageLoaderDecodeProgressiveImageData(imageData, self.request.URL, YES, self, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context); // 处理图片数据 解码 预处理
                         } else {
                             image = SDImageLoaderDecodeImageData(imageData, self.request.URL, [[self class] imageOptionsFromDownloaderOptions:self.options], self.context);
                         }

@@ -137,7 +137,7 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
                                   error:NULL];
 }
 
-- (void)removeExpiredData {
+- (void)removeExpiredData {                                 // 移除过期数据
     NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
     
     // Compute content date key to be used for tests
@@ -207,15 +207,15 @@ static NSString * const SDDiskCacheExtendedAttributeName = @"com.hackemist.SDDis
     NSUInteger maxDiskSize = self.config.maxDiskSize;
     if (maxDiskSize > 0 && currentCacheSize > maxDiskSize) {
         // Target half of our maximum cache size for this cleanup pass.
-        const NSUInteger desiredCacheSize = maxDiskSize / 2;
+        const NSUInteger desiredCacheSize = maxDiskSize / 2;            // 最大容量的 1/2
         
-        // Sort the remaining cache files by their last modification time or last access time (oldest first).
+        // Sort the remaining cache files by their last modification time or last access time (oldest first).       // 从旧到新排序
         NSArray<NSURL *> *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent
                                                                  usingComparator:^NSComparisonResult(id obj1, id obj2) {
                                                                      return [obj1[cacheContentDateKey] compare:obj2[cacheContentDateKey]];
                                                                  }];
         
-        // Delete files until we fall below our desired cache size.
+        // Delete files until we fall below our desired cache size.     // 删除旧的，直到小于最大容量的 1/2
         for (NSURL *fileURL in sortedFiles) {
             if ([self.fileManager removeItemAtURL:fileURL error:nil]) {
                 NSDictionary<NSString *, id> *resourceValues = cacheFiles[fileURL];

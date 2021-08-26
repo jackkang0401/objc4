@@ -191,7 +191,7 @@ static NSString * _defaultDiskCacheDirectory;
     // if memory cache is enabled
     if (toMemory && self.config.shouldCacheImagesInMemory) {
         NSUInteger cost = image.sd_memoryCost;
-        [self.memoryCache setObject:image forKey:key cost:cost];
+        [self.memoryCache setObject:image forKey:key cost:cost];        // UIImage
     }
     
     if (!toDisk) {
@@ -221,7 +221,7 @@ static NSString * _defaultDiskCacheDirectory;
                 }
                 data = [[SDImageCodersManager sharedManager] encodedDataWithImage:image format:format options:nil];
             }
-            [self _storeImageDataToDisk:data forKey:key];
+            [self _storeImageDataToDisk:data forKey:key];               // NSData
             [self _archivedDataWithImage:image forKey:key];
         }
         
@@ -425,8 +425,8 @@ static NSString * _defaultDiskCacheDirectory;
     if (!data) {
         return nil;
     }
-    UIImage *image = SDImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);
-    [self _unarchiveObjectWithImage:image forKey:key];
+    UIImage *image = SDImageCacheDecodeImageData(data, key, [[self class] imageOptionsFromCacheOptions:options], context);  // 解码
+    [self _unarchiveObjectWithImage:image forKey:key];                                                                      // 加载拓展数据
     return image;
 }
 
